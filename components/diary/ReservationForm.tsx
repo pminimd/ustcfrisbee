@@ -1,0 +1,407 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { RESERVATION } from "@/lib/story";
+import {
+  canCustomizeJersey,
+  JERSEY_SIZES,
+  PRICING_BY_CATEGORY,
+  type FulfillmentMethod,
+  type JerseySize,
+  type PricingCategory,
+} from "@/lib/registration";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+const { form } = RESERVATION;
+
+const inputClass =
+  "mt-1.5 w-full rounded-xl border-0 bg-[#fffaf5] px-4 py-3 text-base text-stone-900 shadow-inner ring-1 ring-stone-200/90 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-300/80";
+
+const selectClass = `${inputClass} appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`;
+
+type FormState = {
+  category: PricingCategory | "";
+  name: string;
+  studentId: string;
+  phone: string;
+  size: JerseySize | "";
+  frisbeeNickname: string;
+  backNumber: string;
+  asymmetricSleeve: boolean;
+  fulfillment: FulfillmentMethod;
+  mailingAddress: string;
+};
+
+const initialForm: FormState = {
+  category: "",
+  name: "",
+  studentId: "",
+  phone: "",
+  size: "",
+  frisbeeNickname: "",
+  backNumber: "",
+  asymmetricSleeve: false,
+  fulfillment: "pickup",
+  mailingAddress: "",
+};
+
+export function ReservationForm() {
+  const [values, setValues] = useState<FormState>(initialForm);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+
+  const categoryMeta = values.category ? PRICING_BY_CATEGORY[values.category] : null;
+  const customJersey = values.category ? canCustomizeJersey(values.category) : false;
+  const studentIdRequired = categoryMeta?.studentIdRequired ?? false;
+
+  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setValues((prev) => {
+      const next = { ...prev, [key]: value };
+      if (key === "category" && typeof value === "string" && value) {
+        const cat = value as PricingCategory;
+        if (!canCustomizeJersey(cat)) {
+          next.frisbeeNickname = "";
+          next.backNumber = "";
+        }
+      }
+      return next;
+    });
+    setError(null);
+  };
+
+  const reset = () => {
+    setValues(initialForm);
+    setError(null);
+    setStatus("idle");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!values.category) {
+      setError(form.categoryRequired);
+      return;
+    }
+
+    setStatus("submitting");
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: values.category,
+          name: values.name,
+          studentId: values.studentId,
+          phone: values.phone,
+          size: values.size,
+          frisbeeNickname: values.frisbeeNickname,
+          backNumber: values.backNumber,
+          asymmetricSleeve: values.asymmetricSleeve,
+          fulfillment: values.fulfillment,
+          mailingAddress:
+            values.fulfillment === "mail" ? values.mailingAddress : undefined,
+        }),
+      });
+
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+
+      if (!res.ok) {
+        if (res.status === 503) {
+          setError(form.configError);
+        } else {
+          setError(data.error ?? form.networkError);
+        }
+        setStatus("idle");
+        return;
+      }
+
+      setStatus("success");
+    } catch {
+      setError(form.networkError);
+      setStatus("idle");
+    }
+  };
+
+  if (status === "success") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease }}
+        className="rounded-[1.75rem] bg-white/90 p-8 text-center shadow-[0_18px_44px_-16px_rgba(82,56,36,0.18)] ring-1 ring-stone-200/80 sm:p-10"
+      >
+        <p className="font-handwriting text-2xl text-amber-800/90">{form.successTitle}</p>
+        <p className="mt-3 text-pretty text-sm leading-relaxed text-stone-600 sm:text-base">
+          {form.successBody}
+        </p>
+        <button
+          type="button"
+          onClick={reset}
+          className="mt-6 rounded-full bg-amber-50 px-5 py-2.5 text-sm font-medium text-amber-950 ring-1 ring-amber-200/80 transition hover:bg-amber-100/80"
+        >
+          {form.submitAnother}
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-[1.75rem] bg-white/90 p-6 shadow-[0_18px_44px_-16px_rgba(82,56,36,0.18)] ring-1 ring-stone-200/80 sm:p-8"
+    >
+      <div className="space-y-5">
+        <fieldset>
+          <legend className="text-sm font-medium text-stone-700">{form.category}</legend>
+          <div className="mt-3 space-y-2">
+            {RESERVATION.pricing.map((tier) => {
+              const selected = values.category === tier.key;
+              return (
+                <label
+                  key={tier.key}
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl px-4 py-3.5 transition ring-1 ${
+                    selected
+                      ? "bg-amber-50/90 ring-amber-300/80"
+                      : "bg-[#fffaf5] ring-stone-200/80 hover:ring-amber-200/60"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="category"
+                    value={tier.key}
+                    checked={selected}
+                    onChange={() => update("category", tier.key as PricingCategory)}
+                    className="mt-1 h-4 w-4 shrink-0 border-stone-300 text-amber-700 focus:ring-amber-400"
+                  />
+                  <span className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+                    <span className="text-sm leading-snug text-stone-700">{tier.label}</span>
+                    <span className="text-sm font-medium text-amber-950">
+                      ¥{tier.price}/件
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <label className="block">
+          <span className="text-sm font-medium text-stone-700">{form.name}</span>
+          <input
+            type="text"
+            name="name"
+            autoComplete="name"
+            required
+            value={values.name}
+            onChange={(e) => update("name", e.target.value)}
+            placeholder={form.namePlaceholder}
+            className={inputClass}
+          />
+        </label>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-sm font-medium text-stone-700">
+              {studentIdRequired ? form.studentId : form.studentIdOptional}
+            </span>
+            <input
+              type="text"
+              name="studentId"
+              required={studentIdRequired}
+              value={values.studentId}
+              onChange={(e) => update("studentId", e.target.value)}
+              placeholder={
+                values.category === "alumni"
+                  ? form.studentIdAlumniPlaceholder
+                  : form.studentIdPlaceholder
+              }
+              className={inputClass}
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-stone-700">{form.phone}</span>
+            <input
+              type="tel"
+              name="phone"
+              autoComplete="tel"
+              inputMode="numeric"
+              required
+              value={values.phone}
+              onChange={(e) => update("phone", e.target.value)}
+              placeholder={form.phonePlaceholder}
+              className={inputClass}
+            />
+          </label>
+        </div>
+
+        <label className="block">
+          <span className="text-sm font-medium text-stone-700">{form.size}</span>
+          <select
+            name="size"
+            required
+            value={values.size}
+            onChange={(e) => update("size", e.target.value as JerseySize)}
+            className={selectClass}
+          >
+            <option value="" disabled>
+              {form.sizePlaceholder}
+            </option>
+            {JERSEY_SIZES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <AnimatePresence mode="wait" initial={false}>
+          {values.category && !customJersey ? (
+            <motion.div
+              key="standard"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.35, ease }}
+              className="overflow-hidden rounded-xl bg-stone-50/90 px-4 py-3.5 ring-1 ring-stone-200/80"
+            >
+              <p className="text-sm font-medium text-stone-800">{form.standardJerseyTitle}</p>
+              <p className="mt-1 text-sm text-stone-600">{form.standardJerseyBody}</p>
+            </motion.div>
+          ) : values.category && customJersey ? (
+            <motion.div
+              key="custom"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.35, ease }}
+              className="grid gap-5 overflow-hidden sm:grid-cols-2"
+            >
+              <label className="block">
+                <span className="text-sm font-medium text-stone-700">{form.frisbeeNickname}</span>
+                <input
+                  type="text"
+                  name="frisbeeNickname"
+                  required
+                  value={values.frisbeeNickname}
+                  onChange={(e) => update("frisbeeNickname", e.target.value)}
+                  placeholder={form.frisbeeNicknamePlaceholder}
+                  className={inputClass}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-stone-700">{form.backNumber}</span>
+                <input
+                  type="text"
+                  name="backNumber"
+                  required
+                  inputMode="numeric"
+                  pattern="[0-9]{1,3}"
+                  maxLength={3}
+                  value={values.backNumber}
+                  onChange={(e) =>
+                    update("backNumber", e.target.value.replace(/\D/g, "").slice(0, 3))
+                  }
+                  placeholder={form.backNumberPlaceholder}
+                  className={inputClass}
+                />
+              </label>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-[#fffaf5] px-4 py-3.5 ring-1 ring-stone-200/80">
+          <input
+            type="checkbox"
+            name="asymmetricSleeve"
+            checked={values.asymmetricSleeve}
+            onChange={(e) => update("asymmetricSleeve", e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 rounded border-stone-300 text-amber-700 focus:ring-amber-400"
+          />
+          <span>
+            <span className="text-sm font-medium text-stone-700">{form.asymmetricSleeve}</span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-stone-500">
+              {form.asymmetricSleeveHint}
+            </span>
+          </span>
+        </label>
+
+        <fieldset>
+          <legend className="text-sm font-medium text-stone-700">{form.fulfillment}</legend>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                { value: "pickup" as const, label: form.pickup },
+                { value: "mail" as const, label: form.mail },
+              ] as const
+            ).map((opt) => {
+              const selected = values.fulfillment === opt.value;
+              return (
+                <label
+                  key={opt.value}
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl px-4 py-3.5 transition ring-1 ${
+                    selected
+                      ? "bg-amber-50/90 ring-amber-300/80"
+                      : "bg-[#fffaf5] ring-stone-200/80 hover:ring-amber-200/60"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="fulfillment"
+                    value={opt.value}
+                    checked={selected}
+                    onChange={() => update("fulfillment", opt.value)}
+                    className="mt-1 h-4 w-4 shrink-0 border-stone-300 text-amber-700 focus:ring-amber-400"
+                  />
+                  <span className="text-sm leading-snug text-stone-700">{opt.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <AnimatePresence initial={false}>
+          {values.fulfillment === "mail" ? (
+            <motion.label
+              key="mailing"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.35, ease }}
+              className="block overflow-hidden"
+            >
+              <span className="text-sm font-medium text-stone-700">{form.mailingAddress}</span>
+              <textarea
+                name="mailingAddress"
+                required
+                rows={4}
+                value={values.mailingAddress}
+                onChange={(e) => update("mailingAddress", e.target.value)}
+                placeholder={form.mailingPlaceholder}
+                className={`${inputClass} min-h-[6rem] resize-y`}
+              />
+            </motion.label>
+          ) : null}
+        </AnimatePresence>
+
+        {error ? (
+          <p className="rounded-xl bg-rose-50/90 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-200/80">
+            {error}
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={status === "submitting"}
+          className="w-full rounded-full bg-amber-800 px-6 py-3.5 text-base font-medium text-amber-50 shadow-[0_10px_28px_-10px_rgba(120,53,15,0.45)] transition hover:bg-amber-900 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {status === "submitting" ? form.submitting : form.submit}
+        </button>
+      </div>
+    </form>
+  );
+}
