@@ -300,7 +300,7 @@ pm2 logs jersey-landing --lines 50
 工作表建议命名为 **`登记`**，第一行表头（顺序勿改）：
 
 ```
-提交时间	姓名	学号	电话	邮箱	预定纪念品	预定通道	折扣	飞盘NickName	背部号码	领取方式	邮寄地址
+提交时间	姓名	学号	电话	邮箱	尺码	预定纪念品	预定通道	折扣	飞盘NickName	背部号码	领取方式	邮寄地址
 ```
 
 详见 `scripts/google-sheets-webhook.gs` 顶部注释。修改脚本后需在 Apps Script 中 **重新部署** 网页应用。

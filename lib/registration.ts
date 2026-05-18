@@ -26,6 +26,20 @@ export const STANDARD_JERSEY = {
   backNumber: "00",
 } as const;
 
+export const JERSEY_SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"] as const;
+
+export type JerseySize = (typeof JERSEY_SIZES)[number];
+
+const JERSEY_PRODUCT_KEYS = new Set<ReservationProductKey>([
+  "suits_white",
+  "suits_black",
+  "suits_white_xiuzi",
+]);
+
+export function needsJerseySize(products: ReservationProductKey[]): boolean {
+  return products.some((p) => JERSEY_PRODUCT_KEYS.has(p));
+}
+
 export const PRICING_BY_CATEGORY: Record<
   PricingCategory,
   { discount: string | null; customJersey: boolean; studentIdRequired: boolean }
@@ -43,6 +57,7 @@ export type RegistrationInput = {
   studentId: string;
   phone: string;
   email: string;
+  size: JerseySize | "";
   frisbeeNickname: string;
   backNumber: string;
   fulfillment: FulfillmentMethod;
@@ -58,6 +73,7 @@ const PHONE_RE = /^1\d{10}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BACK_NUMBER_RE = /^[0-9]{1,3}$/;
 const CATEGORIES = new Set<string>(Object.keys(PRICING_BY_CATEGORY));
+const SIZE_SET = new Set<string>(JERSEY_SIZES);
 
 export function canCustomizeJersey(category: PricingCategory): boolean {
   return PRICING_BY_CATEGORY[category].customJersey;
@@ -91,6 +107,7 @@ export function parseRegistrationInput(
   const studentId = typeof raw.studentId === "string" ? raw.studentId.trim() : "";
   const phone = typeof raw.phone === "string" ? raw.phone.trim().replace(/\s/g, "") : "";
   const email = typeof raw.email === "string" ? raw.email.trim().toLowerCase() : "";
+  const size = typeof raw.size === "string" ? raw.size.trim().toUpperCase() : "";
   let frisbeeNickname =
     typeof raw.frisbeeNickname === "string" ? raw.frisbeeNickname.trim() : "";
   let backNumber =
@@ -129,6 +146,9 @@ export function parseRegistrationInput(
   if (!EMAIL_RE.test(email)) {
     return { ok: false, error: "请填写有效的邮箱地址" };
   }
+  if (needsJerseySize(products) && !SIZE_SET.has(size)) {
+    return { ok: false, error: "请选择衣服尺码" };
+  }
 
   const jersey = resolveJerseyFields(cat, frisbeeNickname, backNumber);
   frisbeeNickname = jersey.frisbeeNickname;
@@ -159,6 +179,7 @@ export function parseRegistrationInput(
       studentId,
       phone,
       email,
+      size: needsJerseySize(products) ? (size as JerseySize) : "",
       frisbeeNickname,
       backNumber,
       fulfillment,
@@ -186,6 +207,7 @@ export function toSheetRow(data: RegistrationInput, submittedAt: string) {
     studentId: data.studentId,
     phone: data.phone,
     email: data.email,
+    size: data.size,
     category: categoryLabel(data.category),
     discount: meta.discount ?? "",
     frisbeeNickname: data.frisbeeNickname,

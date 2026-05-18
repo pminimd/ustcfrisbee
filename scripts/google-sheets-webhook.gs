@@ -2,7 +2,7 @@
  * 十周年纪念品登记 → Google 表格
  *
  * 1. 新建 Google 表格，第一行表头（可手动粘贴）：
- *    提交时间 | 姓名 | 学号 | 电话 | 邮箱 | 预定纪念品 | 预定通道 | 折扣 | 飞盘NickName | 背部号码 | 领取方式 | 邮寄地址
+ *    提交时间 | 姓名 | 学号 | 电话 | 邮箱 | 尺码 | 预定纪念品 | 预定通道 | 折扣 | 飞盘NickName | 背部号码 | 领取方式 | 邮寄地址
  * 2. 扩展程序 → Apps Script，粘贴本文件全部内容并保存
  * 3. 部署 → 新建部署 → 类型「网页应用」
  *    - 执行身份：我
@@ -24,6 +24,7 @@ function sheet_() {
       "学号",
       "电话",
       "邮箱",
+      "尺码",
       "预定纪念品",
       "预定通道",
       "折扣",
@@ -45,6 +46,7 @@ function doPost(e) {
       data.studentId || "",
       data.phone || "",
       data.email || "",
+      data.size || "",
       data.products || "",
       data.category || "",
       data.discount || "",

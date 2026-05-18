@@ -5,8 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RESERVATION, RESERVATION_PRODUCTS } from "@/lib/story";
 import {
   canCustomizeJersey,
+  JERSEY_SIZES,
+  needsJerseySize,
   PRICING_BY_CATEGORY,
   type FulfillmentMethod,
+  type JerseySize,
   type PricingCategory,
   type ReservationProductKey,
 } from "@/lib/registration";
@@ -18,6 +21,8 @@ const { form } = RESERVATION;
 const inputClass =
   "mt-1.5 w-full rounded-xl border-0 bg-[#fffaf5] px-4 py-3 text-base text-stone-900 shadow-inner ring-1 ring-stone-200/90 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-300/80";
 
+const selectClass = `${inputClass} appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`;
+
 type FormState = {
   products: ReservationProductKey[];
   category: PricingCategory | "";
@@ -25,6 +30,7 @@ type FormState = {
   studentId: string;
   phone: string;
   email: string;
+  size: JerseySize | "";
   frisbeeNickname: string;
   backNumber: string;
   fulfillment: FulfillmentMethod;
@@ -38,6 +44,7 @@ const initialForm: FormState = {
   studentId: "",
   phone: "",
   email: "",
+  size: "",
   frisbeeNickname: "",
   backNumber: "",
   fulfillment: "pickup",
@@ -52,6 +59,7 @@ export function ReservationForm() {
   const categoryMeta = values.category ? PRICING_BY_CATEGORY[values.category] : null;
   const customJersey = values.category ? canCustomizeJersey(values.category) : false;
   const studentIdRequired = categoryMeta?.studentIdRequired ?? false;
+  const jerseySizeRequired = needsJerseySize(values.products);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setValues((prev) => {
@@ -86,6 +94,10 @@ export function ReservationForm() {
       setError(form.categoryRequired);
       return;
     }
+    if (jerseySizeRequired && !values.size) {
+      setError(form.sizeRequired);
+      return;
+    }
 
     setStatus("submitting");
 
@@ -100,6 +112,7 @@ export function ReservationForm() {
           studentId: values.studentId,
           phone: values.phone,
           email: values.email,
+          size: jerseySizeRequired ? values.size : "",
           frisbeeNickname: values.frisbeeNickname,
           backNumber: values.backNumber,
           fulfillment: values.fulfillment,
@@ -182,7 +195,11 @@ export function ReservationForm() {
                         const products = has
                           ? prev.products.filter((k) => k !== product.key)
                           : [...prev.products, product.key];
-                        return { ...prev, products };
+                        return {
+                          ...prev,
+                          products,
+                          size: needsJerseySize(products) ? prev.size : "",
+                        };
                       });
                       setError(null);
                     }}
@@ -317,6 +334,37 @@ export function ReservationForm() {
             className={inputClass}
           />
         </label>
+
+        <AnimatePresence mode="wait" initial={false}>
+          {jerseySizeRequired ? (
+            <motion.label
+              key="size"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.35, ease }}
+              className="block overflow-hidden"
+            >
+              <span className="text-sm font-medium text-stone-700">{form.size}</span>
+              <select
+                name="size"
+                required
+                value={values.size}
+                onChange={(e) => update("size", e.target.value as JerseySize)}
+                className={selectClass}
+              >
+                <option value="" disabled>
+                  {form.sizePlaceholder}
+                </option>
+                {JERSEY_SIZES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </motion.label>
+          ) : null}
+        </AnimatePresence>
 
         <AnimatePresence mode="wait" initial={false}>
           {values.category && !customJersey ? (
