@@ -56,6 +56,8 @@ curl -s "你的 GOOGLE_SHEETS_WEBHOOK_URL"
 # 期望：{"ok":true,"message":"纪念品登记 webhook 运行中"}
 ```
 
+> **PM2 说明：** `ecosystem.config.cjs` 会在启动时读取项目根目录的 `.env.local` 并注入 `GOOGLE_SHEETS_WEBHOOK_URL`。服务器上必须有该文件；修改后务必 `pm2 restart jersey-landing`。
+
 ---
 
 ## 3. 安装依赖并构建
@@ -311,7 +313,7 @@ pm2 logs jersey-landing --lines 50
 
 | 现象 | 可能原因 | 处理 |
 |------|----------|------|
-| 提交预定返回 503 | 未配置 `GOOGLE_SHEETS_WEBHOOK_URL` | 检查 `.env.local`，`pm2 restart` |
+| 提交预定返回 503 | 未配置 `GOOGLE_SHEETS_WEBHOOK_URL` | 在项目根目录创建/编辑 `.env.local` 填入 URL；`pm2 restart jersey-landing`；启动时若见警告说明仍为空 |
 | 提交预定返回 502 | 服务器无法访问 Google | 换香港/海外节点或改用国内表格方案 |
 | 页面 502 / 无法访问 | PM2 未运行、构建失败或 Nginx 未转发 | `pm2 logs jersey-landing`；`sudo nginx -t` 后 `sudo systemctl reload nginx` |
 | 改 `.env.local` 不生效 | PM2 未重启 | `pm2 restart jersey-landing` |
