@@ -1,3 +1,4 @@
+import { assetStem } from "./assets";
 import { GENERATED_IMAGE_META } from "./image-meta.generated";
 
 export type ImageMeta = {
@@ -14,9 +15,9 @@ const DEFAULT: ImageMeta = {
 };
 
 /** 由 scripts/optimize-images.mjs 根据 assets 实测尺寸生成 */
-export function getImageMeta(pngFile: string): ImageMeta {
-  const stem = pngFile.replace(/\.png$/i, "");
-  return GENERATED_IMAGE_META[stem] ?? { ...DEFAULT, file: pngFile };
+export function getImageMeta(file: string): ImageMeta {
+  const stem = assetStem(file);
+  return GENERATED_IMAGE_META[stem] ?? { ...DEFAULT, file };
 }
 
 export function imageAspectRatio(meta: ImageMeta) {

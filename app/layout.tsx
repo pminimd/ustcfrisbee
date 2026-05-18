@@ -24,12 +24,12 @@ const maShan = Ma_Shan_Zheng({
 });
 
 export const metadata: Metadata = {
-  title: "USTC校学生极限飞盘协会十周年纪念衫",
+  title: "USTC校学生极限飞盘协会十周年纪念品",
   description:
-    "USTC校学生极限飞盘协会十周年纪念衫设计纪实：正面、背面、袖子与纹饰的演进过程。",
+    "USTC校学生极限飞盘协会十周年纪念品设计纪实：正面、背面、袖子与纹饰的演进过程。",
   openGraph: {
-    title: "USTC校学生极限飞盘协会十周年纪念衫",
-    description: "十周年纪念衫的设计之路，我们一起走过。",
+    title: "USTC校学生极限飞盘协会十周年纪念品",
+    description: "十周年纪念品的设计之路，我们一起走过。",
   },
 };
 

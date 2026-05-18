@@ -1,4 +1,19 @@
+import {
+  RESERVATION_PRODUCTS,
+  type ReservationProductKey,
+} from "@/lib/story";
+
 export type FulfillmentMethod = "pickup" | "mail";
+
+export type { ReservationProductKey };
+
+const PRODUCT_KEYS = new Set<string>(
+  RESERVATION_PRODUCTS.map((p) => p.key),
+);
+
+export function productLabel(key: ReservationProductKey): string {
+  return RESERVATION_PRODUCTS.find((p) => p.key === key)?.label ?? key;
+}
 
 export type PricingCategory =
   | "student_member"
@@ -11,44 +26,38 @@ export const STANDARD_JERSEY = {
   backNumber: "00",
 } as const;
 
-export const JERSEY_SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"] as const;
-
-export type JerseySize = (typeof JERSEY_SIZES)[number];
-
 export const PRICING_BY_CATEGORY: Record<
   PricingCategory,
-  { price: number; customJersey: boolean; studentIdRequired: boolean }
+  { discount: string | null; customJersey: boolean; studentIdRequired: boolean }
 > = {
-  student_member: { price: 69, customJersey: true, studentIdRequired: true },
-  student_non_member: { price: 79, customJersey: true, studentIdRequired: true },
-  alumni: { price: 99, customJersey: true, studentIdRequired: false },
-  other_friend: { price: 109, customJersey: false, studentIdRequired: false },
+  student_member: { discount: "7折", customJersey: true, studentIdRequired: true },
+  student_non_member: { discount: "8折", customJersey: true, studentIdRequired: true },
+  alumni: { discount: "9折", customJersey: true, studentIdRequired: false },
+  other_friend: { discount: null, customJersey: false, studentIdRequired: false },
 };
 
 export type RegistrationInput = {
+  products: ReservationProductKey[];
   category: PricingCategory;
   name: string;
   studentId: string;
   phone: string;
   email: string;
-  size: JerseySize;
   frisbeeNickname: string;
   backNumber: string;
-  asymmetricSleeve: boolean;
   fulfillment: FulfillmentMethod;
   mailingAddress?: string;
 };
 
 export type RegistrationPayload = RegistrationInput & {
   submittedAt: string;
-  unitPrice: number;
+  discount: string | null;
 };
 
 const PHONE_RE = /^1\d{10}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BACK_NUMBER_RE = /^[0-9]{1,3}$/;
 const CATEGORIES = new Set<string>(Object.keys(PRICING_BY_CATEGORY));
-const SIZE_SET = new Set<string>(JERSEY_SIZES);
 
 export function canCustomizeJersey(category: PricingCategory): boolean {
   return PRICING_BY_CATEGORY[category].customJersey;
@@ -73,6 +82,7 @@ export function parseRegistrationInput(
   }
 
   const raw = body as Record<string, unknown>;
+  const productsRaw = raw.products;
   let category = raw.category;
   if (category === "alumni_family") {
     category = "alumni";
@@ -81,15 +91,25 @@ export function parseRegistrationInput(
   const studentId = typeof raw.studentId === "string" ? raw.studentId.trim() : "";
   const phone = typeof raw.phone === "string" ? raw.phone.trim().replace(/\s/g, "") : "";
   const email = typeof raw.email === "string" ? raw.email.trim().toLowerCase() : "";
-  const size = typeof raw.size === "string" ? raw.size.trim().toUpperCase() : "";
   let frisbeeNickname =
     typeof raw.frisbeeNickname === "string" ? raw.frisbeeNickname.trim() : "";
   let backNumber =
     typeof raw.backNumber === "string" ? raw.backNumber.trim() : "";
-  const asymmetricSleeve = raw.asymmetricSleeve === true;
   const fulfillment = raw.fulfillment;
   const mailingAddress =
     typeof raw.mailingAddress === "string" ? raw.mailingAddress.trim() : "";
+
+  const products: ReservationProductKey[] = [];
+  if (Array.isArray(productsRaw)) {
+    for (const item of productsRaw) {
+      if (typeof item === "string" && PRODUCT_KEYS.has(item) && !products.includes(item as ReservationProductKey)) {
+        products.push(item as ReservationProductKey);
+      }
+    }
+  }
+  if (products.length === 0) {
+    return { ok: false, error: "请至少选择一种纪念品" };
+  }
 
   if (typeof category !== "string" || !CATEGORIES.has(category)) {
     return { ok: false, error: "请选择预定通道" };
@@ -108,9 +128,6 @@ export function parseRegistrationInput(
   }
   if (!EMAIL_RE.test(email)) {
     return { ok: false, error: "请填写有效的邮箱地址" };
-  }
-  if (!SIZE_SET.has(size)) {
-    return { ok: false, error: "请选择衣服尺码" };
   }
 
   const jersey = resolveJerseyFields(cat, frisbeeNickname, backNumber);
@@ -136,15 +153,14 @@ export function parseRegistrationInput(
   return {
     ok: true,
     data: {
+      products,
       category: cat,
       name,
       studentId,
       phone,
       email,
-      size: size as JerseySize,
       frisbeeNickname,
       backNumber,
-      asymmetricSleeve,
       fulfillment,
       ...(fulfillment === "mail" ? { mailingAddress } : {}),
     },
@@ -165,16 +181,15 @@ export function toSheetRow(data: RegistrationInput, submittedAt: string) {
   const meta = PRICING_BY_CATEGORY[data.category];
   return {
     submittedAt,
+    products: data.products.map(productLabel).join("、"),
     name: data.name,
     studentId: data.studentId,
     phone: data.phone,
     email: data.email,
-    size: data.size,
     category: categoryLabel(data.category),
-    unitPrice: meta.price,
+    discount: meta.discount ?? "",
     frisbeeNickname: data.frisbeeNickname,
     backNumber: data.backNumber,
-    asymmetricSleeve: data.asymmetricSleeve ? "是" : "否",
     fulfillment: data.fulfillment === "pickup" ? "现场领取" : "邮寄",
     mailingAddress: data.mailingAddress ?? "",
   };

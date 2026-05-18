@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RESERVATION } from "@/lib/story";
+import { RESERVATION, RESERVATION_PRODUCTS } from "@/lib/story";
 import {
   canCustomizeJersey,
-  JERSEY_SIZES,
   PRICING_BY_CATEGORY,
   type FulfillmentMethod,
-  type JerseySize,
   type PricingCategory,
+  type ReservationProductKey,
 } from "@/lib/registration";
+import { WarmAssetImage } from "./WarmAssetImage";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const { form } = RESERVATION;
@@ -18,32 +18,28 @@ const { form } = RESERVATION;
 const inputClass =
   "mt-1.5 w-full rounded-xl border-0 bg-[#fffaf5] px-4 py-3 text-base text-stone-900 shadow-inner ring-1 ring-stone-200/90 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-300/80";
 
-const selectClass = `${inputClass} appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`;
-
 type FormState = {
+  products: ReservationProductKey[];
   category: PricingCategory | "";
   name: string;
   studentId: string;
   phone: string;
   email: string;
-  size: JerseySize | "";
   frisbeeNickname: string;
   backNumber: string;
-  asymmetricSleeve: boolean;
   fulfillment: FulfillmentMethod;
   mailingAddress: string;
 };
 
 const initialForm: FormState = {
+  products: [],
   category: "",
   name: "",
   studentId: "",
   phone: "",
   email: "",
-  size: "",
   frisbeeNickname: "",
   backNumber: "",
-  asymmetricSleeve: false,
   fulfillment: "pickup",
   mailingAddress: "",
 };
@@ -82,6 +78,10 @@ export function ReservationForm() {
     e.preventDefault();
     setError(null);
 
+    if (values.products.length === 0) {
+      setError(form.productsRequired);
+      return;
+    }
     if (!values.category) {
       setError(form.categoryRequired);
       return;
@@ -94,15 +94,14 @@ export function ReservationForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          products: values.products,
           category: values.category,
           name: values.name,
           studentId: values.studentId,
           phone: values.phone,
           email: values.email,
-          size: values.size,
           frisbeeNickname: values.frisbeeNickname,
           backNumber: values.backNumber,
-          asymmetricSleeve: values.asymmetricSleeve,
           fulfillment: values.fulfillment,
           mailingAddress:
             values.fulfillment === "mail" ? values.mailingAddress : undefined,
@@ -158,9 +157,73 @@ export function ReservationForm() {
     >
       <div className="space-y-5">
         <fieldset>
+          <legend className="text-sm font-medium text-stone-700">{form.products}</legend>
+          <p className="mt-1 text-xs leading-relaxed text-stone-500">{form.productsHint}</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {RESERVATION_PRODUCTS.map((product) => {
+              const selected = values.products.includes(product.key);
+              return (
+                <label
+                  key={product.key}
+                  className={`flex cursor-pointer flex-col overflow-hidden rounded-xl transition ring-1 ${
+                    selected
+                      ? "bg-amber-50/90 ring-amber-300/80"
+                      : "bg-[#fffaf5] ring-stone-200/80 hover:ring-amber-200/60"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    name="products"
+                    value={product.key}
+                    checked={selected}
+                    onChange={() => {
+                      setValues((prev) => {
+                        const has = prev.products.includes(product.key);
+                        const products = has
+                          ? prev.products.filter((k) => k !== product.key)
+                          : [...prev.products, product.key];
+                        return { ...prev, products };
+                      });
+                      setError(null);
+                    }}
+                    className="sr-only"
+                  />
+                  <div className="p-2 pb-0">
+                    <WarmAssetImage
+                      file={product.file}
+                      alt={product.label}
+                      size="scrapbook"
+                      className="mx-auto w-full max-w-none shadow-none ring-0"
+                    />
+                  </div>
+                  <span className="flex flex-1 flex-col gap-0.5 px-3 py-3">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                          selected
+                            ? "border-amber-600 bg-amber-700 text-white"
+                            : "border-stone-300 bg-white"
+                        }`}
+                        aria-hidden
+                      >
+                        {selected ? "✓" : ""}
+                      </span>
+                      <span className="text-sm font-medium text-stone-800">{product.label}</span>
+                    </span>
+                    <span className="pl-6 text-xs leading-relaxed text-stone-500">
+                      {product.note}
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset>
           <legend className="text-sm font-medium text-stone-700">{form.category}</legend>
           <div className="mt-3 space-y-2">
-            {RESERVATION.pricing.map((tier) => {
+            {RESERVATION.channels.map((tier) => {
               const selected = values.category === tier.key;
               return (
                 <label
@@ -182,7 +245,7 @@ export function ReservationForm() {
                   <span className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                     <span className="text-sm leading-snug text-stone-700">{tier.label}</span>
                     <span className="text-sm font-medium text-amber-950">
-                      ¥{tier.price}/件
+                      {tier.discount ?? "原价"}
                     </span>
                   </span>
                 </label>
@@ -255,26 +318,6 @@ export function ReservationForm() {
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-stone-700">{form.size}</span>
-          <select
-            name="size"
-            required
-            value={values.size}
-            onChange={(e) => update("size", e.target.value as JerseySize)}
-            className={selectClass}
-          >
-            <option value="" disabled>
-              {form.sizePlaceholder}
-            </option>
-            {JERSEY_SIZES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-
         <AnimatePresence mode="wait" initial={false}>
           {values.category && !customJersey ? (
             <motion.div
@@ -330,22 +373,6 @@ export function ReservationForm() {
             </motion.div>
           ) : null}
         </AnimatePresence>
-
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-[#fffaf5] px-4 py-3.5 ring-1 ring-stone-200/80">
-          <input
-            type="checkbox"
-            name="asymmetricSleeve"
-            checked={values.asymmetricSleeve}
-            onChange={(e) => update("asymmetricSleeve", e.target.checked)}
-            className="mt-1 h-4 w-4 shrink-0 rounded border-stone-300 text-amber-700 focus:ring-amber-400"
-          />
-          <span>
-            <span className="text-sm font-medium text-stone-700">{form.asymmetricSleeve}</span>
-            <span className="mt-0.5 block text-xs leading-relaxed text-stone-500">
-              {form.asymmetricSleeveHint}
-            </span>
-          </span>
-        </label>
 
         <fieldset>
           <legend className="text-sm font-medium text-stone-700">{form.fulfillment}</legend>

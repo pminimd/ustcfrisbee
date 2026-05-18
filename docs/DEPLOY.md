@@ -1,6 +1,6 @@
 # 云服务器部署指南
 
-本文档说明如何将「USTC 校学生极限飞盘协会十周年纪念衫」落地页部署到 Linux 云服务器，并使用 **PM2** 常驻运行 Next.js 生产服务。
+本文档说明如何将「USTC 校学生极限飞盘协会十周年纪念品」落地页部署到 Linux 云服务器，并使用 **PM2** 常驻运行 Next.js 生产服务。
 
 ## 前置要求
 
@@ -53,7 +53,7 @@ PORT=3000
 ```bash
 # 浏览器或 curl 测试 Apps Script 是否可访问
 curl -s "你的 GOOGLE_SHEETS_WEBHOOK_URL"
-# 期望：{"ok":true,"message":"纪念衫登记 webhook 运行中"}
+# 期望：{"ok":true,"message":"纪念品登记 webhook 运行中"}
 ```
 
 ---
@@ -300,7 +300,7 @@ pm2 logs jersey-landing --lines 50
 工作表建议命名为 **`登记`**，第一行表头（顺序勿改）：
 
 ```
-提交时间	姓名	学号	电话	邮箱	尺码	预定通道	单价	飞盘NickName	背部号码	非对称袖子	领取方式	邮寄地址
+提交时间	姓名	学号	电话	邮箱	预定纪念品	预定通道	折扣	飞盘NickName	背部号码	领取方式	邮寄地址
 ```
 
 详见 `scripts/google-sheets-webhook.gs` 顶部注释。修改脚本后需在 Apps Script 中 **重新部署** 网页应用。

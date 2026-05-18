@@ -7,7 +7,7 @@ export function ReservationSection() {
       id="reservation"
       className="bg-[#fffaf5] px-5 py-20 sm:px-8 sm:py-28"
     >
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-3xl">
         <p className="font-handwriting text-center text-xl text-amber-800/85">
           {RESERVATION.eyebrow}
         </p>
@@ -33,10 +33,7 @@ export function ReservationSection() {
                 className="flex items-baseline justify-between gap-4 text-sm text-stone-700"
               >
                 <span>{tier.label}</span>
-                <span className="shrink-0 font-medium text-amber-950">
-                  ¥{tier.price}
-                  <span className="font-normal text-stone-500">/件</span>
-                </span>
+                <span className="shrink-0 font-medium text-amber-950">{tier.discount}</span>
               </li>
             ))}
           </ul>

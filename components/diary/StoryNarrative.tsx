@@ -13,13 +13,53 @@ function StoryImage({
   block: (typeof STORY_BLOCKS)[number];
 }) {
   if (block.imageKind === "asset") {
+    const [primary, ...rest] = block.images;
+    const frameClass =
+      "shadow-[0_20px_50px_-18px_rgba(82,56,36,0.18)]";
+
+    if (rest.length === 0) {
+      return (
+        <WarmAssetImage
+          file={primary.file}
+          alt={primary.alt}
+          size="timeline"
+          className={frameClass}
+        />
+      );
+    }
+
     return (
-      <WarmAssetImage
-        file={block.file}
-        alt={block.imageAlt}
-        size="timeline"
-        className="shadow-[0_20px_50px_-18px_rgba(82,56,36,0.18)]"
-      />
+      <motion.div
+        className="space-y-4"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease }}
+      >
+        <WarmAssetImage
+          file={primary.file}
+          alt={primary.alt}
+          size="timeline"
+          className={frameClass}
+        />
+        <motion.div
+          className="grid gap-4 sm:grid-cols-2"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.65, delay: 0.08, ease }}
+        >
+          {rest.map((img) => (
+            <WarmAssetImage
+              key={img.file}
+              file={img.file}
+              alt={img.alt}
+              size="timeline"
+              className={frameClass}
+            />
+          ))}
+        </motion.div>
+      </motion.div>
     );
   }
 

@@ -28,8 +28,8 @@ export async function POST(request: Request) {
   }
 
   const submittedAt = new Date().toISOString();
-  const unitPrice = PRICING_BY_CATEGORY[parsed.data.category].price;
-  const payload: RegistrationPayload = { ...parsed.data, submittedAt, unitPrice };
+  const discount = PRICING_BY_CATEGORY[parsed.data.category].discount;
+  const payload: RegistrationPayload = { ...parsed.data, submittedAt, discount };
   const sheetRow = toSheetRow(parsed.data, submittedAt);
 
   try {

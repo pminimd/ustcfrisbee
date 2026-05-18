@@ -1,31 +1,36 @@
 /** 温暖日记风单页：文案与结构（图片文件名与 assets/ 一致） */
 
-export const SITE_TITLE = "USTC校学生极限飞盘协会十周年纪念衫";
+export const SITE_TITLE = "USTC校学生极限飞盘协会十周年纪念品";
 
 export const HERO = {
   kicker: "设计纪实 · 我们一起走过",
-  titleLines: ["USTC校学生极限飞盘协会", "十周年纪念衫"],
+  titleLines: ["USTC校学生极限飞盘协会", "十周年纪念品"],
   lead:
-    "如果把那些一起练盘、一起赶路、一起在场上笑到喘不过气的日子，做成一件可以穿在身上的东西——会是什么样子？",
+    "如果把那些一起练盘、一起赶路、一起在场上笑到喘不过气的日子，做成一件可以带在身边的东西——会是什么样子？",
   sub:
     "下面是我们慢慢改出来的过程：不太成熟的初稿、安静的修改，还有最后愿意拿出来给大家看的那版。",
   heroFile: "front_v3.png",
-  heroImageAlt: "定稿纪念衫正面效果图",
+  heroImageAlt: "定稿纪念品正面效果图",
 } as const;
 
 export const STORY_SECTION = {
   eyebrow: "笔记本里的一页",
-  title: "针脚背后的故事",
+  title: "设计背后的故事",
   intro:
     "这件衣服想同时递出两份心意：上场时经得起细看的专业，脱下来后仍然说得清的回忆。",
   dualTheme: {
     label: "设计主张",
     professional: "一份专业",
     memory: "一份回忆",
-    bridge: "场上认得出功能，场下读得出我们。",
+    bridge: "场上的功能性，场外的校园回忆。",
   },
   footerNote: "—— 这一章，我们还在一起写",
 } as const;
+
+export type StoryImage = {
+  file: string;
+  alt: string;
+};
 
 export type StoryBlock = {
   id: string;
@@ -33,10 +38,9 @@ export type StoryBlock = {
   body: string;
   bullets?: readonly string[];
   imageSide: "left" | "right";
-  imageAlt: string;
 } & (
-  | { imageKind: "remote"; image: string }
-  | { imageKind: "asset"; file: string }
+  | { imageKind: "remote"; image: string; imageAlt: string }
+  | { imageKind: "asset"; images: readonly StoryImage[] }
 );
 
 export const STORY_BLOCKS: StoryBlock[] = [
@@ -44,10 +48,9 @@ export const STORY_BLOCKS: StoryBlock[] = [
     id: "dual",
     heading: "为什么既要「专业」，也要「回忆」",
     body:
-      "纪念衫如果只好看，像海报；如果只像比赛服，又像在办一场必须赢下的订货会。我们希望它既能站上正式赛场，也能在多年后从衣柜里拿出来，仍然一眼知道：那是我们的十年。",
+      "我们希望它既能站上正式赛场，也能在多年后从衣柜里拿出来，仍然一眼知道：那是我们的十年。",
     imageKind: "asset",
-    file: "final_version.png",
-    imageAlt: "十周年纪念衫定稿整体效果",
+    images: [{ file: "final_version.png", alt: "十周年纪念衫定稿整体效果" }],
     imageSide: "right",
   },
   {
@@ -61,33 +64,34 @@ export const STORY_BLOCKS: StoryBlock[] = [
       "科大经典建筑线稿：把校园记忆缝进衣身，安静、克制，不抢主视觉",
     ],
     imageKind: "asset",
-    file: "outline.png",
-    imageAlt: "科大经典建筑线稿纹饰",
+    images: [
+      { file: "outline.png", alt: "科大经典建筑线稿纹饰" },
+      { file: "胸口队徽.JPG", alt: "胸口队徽" },
+      { file: "手臂纪念徽章.JPG", alt: "手臂十周年纪念徽章" },
+    ],
     imageSide: "left",
   },
   {
     id: "function",
-    heading: "四面都有号码：把「能上场」写进结构里",
+    heading: "四面都有号码：把功能性写进结构里",
     body:
-      "飞盘服首先是功能装备。我们在四面都保留了号码位与相应的专业布局——不是为了好看而画满，而是让这件衣服在实战里仍然顺手、可辨、可管理。",
+      "我们在四面都保留了号码位与相应的专业布局——不是为了好看而画满，而是让这件衣服在实战里仍可辨、可管理。",
     bullets: [
       "前后左右四面均可布置号码信息",
       "布局为场上识别与执裁习惯留出空间",
       "纪念元素与功能分区并行，而不是互相挤占",
     ],
     imageKind: "asset",
-    file: "back_v2.png",
-    imageAlt: "背面定稿：功能布局与图形关系",
+    images: [{ file: "back_v2.png", alt: "背面定稿：功能布局与图形关系" }],
     imageSide: "right",
   },
   {
     id: "memory",
-    heading: "回忆落在细节里，而不是口号里",
+    heading: "回忆落在细节而不是口号",
     body:
-      "专业是底线，回忆是温度。线稿、徽章、队徽，还有一起改稿的那些夜晚——它们让这件衣服不只是「十周年周边」，而是「我们确实一起走过」的证据。",
+      "回忆是温度。线稿、徽章、队徽，还有一起改稿的那些夜晚——它们让所有的纪念品不只是「十周年周边」，而是「我们曾一起走过」。",
     imageKind: "asset",
-    file: "moments.png",
-    imageAlt: "队友在暖光下相聚",
+    images: [{ file: "moments.png", alt: "队友在暖光下相聚" }],
     imageSide: "left",
   },
 ];
@@ -109,7 +113,7 @@ export type EvolutionChapter = {
 /** 设计演进：正面 → 背面 → 袖子（对应 assets 文件名） */
 export const DESIGN_EVOLUTION = {
   sectionEyebrow: "设计演进",
-  sectionTitle: "它是怎么一点点长出来的",
+  sectionTitle: "它是怎么一点点长大的",
   sectionIntro:
     "我们把正面、背面和袖子分开记录——像翻三本小册子，每一本都只讲一件事。",
   chapters: [
@@ -159,12 +163,12 @@ export const DESIGN_EVOLUTION = {
       eyebrow: "袖子",
       title: "袖子 · 定稿",
       intro:
-        "袖子是抬手才看见的舞台——定稿里，十周年纪念徽章放在外侧，号码功能也留足了位置。",
+        "袖子一定会出现在照片里————定稿里，十周年纪念徽章放在外侧，号码功能也留足了位置。",
       steps: [
         {
           file: "xiuzi_v1.png",
           title: "袖子定稿",
-          note: "第一版就是最终正稿：不打扰挥盘动作，抬臂时仍然利落，场边才看得见的那点细节。",
+          note: "第一版就是最终正稿：简洁明了。",
         },
       ],
     },
@@ -187,30 +191,70 @@ export const EASTER_EGG = {
   sleeveFile: "xiuzi_v3.png",
 } as const;
 
+export const RESERVATION_PRODUCTS = [
+  {
+    key: "suits_white",
+    file: "products/suits_white.png",
+    label: "白金",
+    note: "经典白底十周年款",
+  },
+  {
+    key: "suits_black",
+    file: "products/suits_black.png",
+    label: "黑金",
+    note: "深色主场气质款",
+  },
+  {
+    key: "suits_white_xiuzi",
+    file: "products/suits_white_xiuzi.png",
+    label: "白金 · 非对称袖子",
+    note: "左袖科大线稿彩蛋款",
+  },
+  {
+    key: "frisbee_a",
+    file: "products/frisbee_A.PNG",
+    label: "纪念飞盘 A款",
+    note: "十周年飞盘款式一",
+  },
+  {
+    key: "frisbee_b",
+    file: "products/frisbee_B.PNG",
+    label: "纪念飞盘 B款",
+    note: "十周年飞盘款式二",
+  },
+] as const;
+
+export type ReservationProductKey = (typeof RESERVATION_PRODUCTS)[number]["key"];
+
 export const RESERVATION = {
   eyebrow: "开放预定",
-  title: "登记你的纪念衫预定",
+  title: "登记你的纪念品预定",
   window: "预定期：5 月 18 日 — 5 月 23 日",
   body:
-    "纪念衫开放预定。我们将在 6 月 15 日活动现场发放；若无法到场，请填写下方信息表，我们会尽量安排在 6 月 10 日前寄出。",
+    "纪念品开放预定。我们将在 6 月 15 日活动现场发放；若无法到场，请填写下方信息表，我们会尽量安排在 6 月 10 日前寄出。",
   note: "提交后数据会同步到协会统计表格，便于核对类别、印字与邮寄。",
-  pricingTitle: "价格",
+  pricingTitle: "折扣优惠",
   pricing: [
-    { key: "student_member", label: "在校学生（协会成员）", price: 69 },
-    { key: "student_non_member", label: "在校学生（非协会成员）", price: 79 },
-    { key: "alumni", label: "校友及家属", price: 99 },
-    { key: "other_friend", label: "其他朋友", price: 109 },
+    { key: "student_member", label: "在校学生（协会成员）", discount: "7折" },
+    { key: "student_non_member", label: "在校学生（非协会成员）", discount: "8折" },
+    { key: "alumni", label: "校友及家属", discount: "9折" },
+  ] as const,
+  /** 预定通道（含无折扣档位，仅用于表单） */
+  channels: [
+    { key: "student_member", label: "在校学生（协会成员）", discount: "7折" },
+    { key: "student_non_member", label: "在校学生（非协会成员）", discount: "8折" },
+    { key: "alumni", label: "校友及家属", discount: "9折" },
+    { key: "other_friend", label: "其他朋友", discount: null },
   ] as const,
   rules: [
     "科大校友、家属及在校同学可预定专属 NickName 与背部号码。",
-    "其他朋友预定标准款：00 号 +「Baby」。",
-    "希望左臂非对称袖子（科大建筑线稿）的同学，请在表单中勾选对应选项。",
   ] as const,
   form: {
+    products: "预定可以帮助我们更好地准备纪念品，所有经费将用于提供科大学生更好的飞盘环境",
+    productsHint: "可勾选多项",
+    productsRequired: "请至少选择一种纪念品",
     category: "预定通道",
     categoryRequired: "请选择预定通道",
-    asymmetricSleeve: "非对称袖子设计",
-    asymmetricSleeveHint: "勾选后采用左臂环绕科大经典建筑线稿的非对称定稿袖子。",
     standardJerseyTitle: "标准款印字",
     standardJerseyBody: "00 号 +「Baby」（其他朋友专属标准款，无需填写下方 NickName 与号码）",
     name: "姓名",
@@ -223,8 +267,6 @@ export const RESERVATION = {
     phonePlaceholder: "11 位手机号码",
     email: "邮箱",
     emailPlaceholder: "用于订单确认与联系",
-    size: "衣服尺码",
-    sizePlaceholder: "请选择尺码",
     frisbeeNickname: "飞盘 NickName",
     frisbeeNicknamePlaceholder: "印在球衣上的昵称",
     backNumber: "背部号码",
@@ -250,5 +292,5 @@ export const CLOSING = {
   line2: "但不知怎么，我们身上还都带着一点点它们往前走。",
   signoff: "—— 用心做的，你们的队伍",
   imageFile: "front_v3.png",
-  imageAlt: "定稿纪念衫正面",
+  imageAlt: "定稿纪念品正面",
 } as const;

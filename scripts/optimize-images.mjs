@@ -1,5 +1,5 @@
 /**
- * 将 assets/*.png 转为 WebP，并同步 lib/image-meta.generated.ts（实测宽高）。
+ * 将 assets/*.{png,jpg,jpeg} 转为 WebP，并同步 lib/image-meta.generated.ts（实测宽高）。
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -17,13 +17,31 @@ const WIDTH_BY_FILE = {
   加群二维码: 420,
 };
 const DEFAULT_MAX = 1200;
+const PRODUCT_MAX = 900;
 
-function stemOf(filename) {
-  return filename.replace(/\.png$/i, "");
+function stemOf(relativePath) {
+  return relativePath.replace(/\.(png|jpe?g)$/i, "");
 }
 
 function maxWidthFor(stem) {
+  if (stem.startsWith("products/")) return PRODUCT_MAX;
   return WIDTH_BY_FILE[stem] ?? DEFAULT_MAX;
+}
+
+async function collectImages(dir, base = "") {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files = [];
+  for (const ent of entries) {
+    if (ent.name.startsWith(".")) continue;
+    const rel = base ? `${base}/${ent.name}` : ent.name;
+    const full = path.join(dir, ent.name);
+    if (ent.isDirectory()) {
+      files.push(...(await collectImages(full, rel)));
+    } else if (/\.(png|jpe?g)$/i.test(ent.name)) {
+      files.push(rel);
+    }
+  }
+  return files;
 }
 
 async function shouldSkip(src, dest) {
@@ -55,10 +73,10 @@ ${entries}
 
 async function main() {
   await mkdir(outDir, { recursive: true });
-  const names = (await readdir(assetsDir)).filter((n) => /\.png$/i.test(n));
+  const names = await collectImages(assetsDir);
 
   if (names.length === 0) {
-    console.warn("optimize-images: no PNG files in assets/");
+    console.warn("optimize-images: no PNG/JPEG files in assets/");
     return;
   }
 
@@ -68,6 +86,7 @@ async function main() {
     const src = path.join(assetsDir, name);
     const stem = stemOf(name);
     const dest = path.join(outDir, `${stem}.webp`);
+    await mkdir(path.dirname(dest), { recursive: true });
     const maxW = maxWidthFor(stem);
 
     const { width, height } = await sharp(src).metadata();
