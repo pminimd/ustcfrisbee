@@ -85,9 +85,8 @@ export const STORY_BLOCKS: StoryBlock[] = [
     heading: "回忆落在细节里，而不是口号里",
     body:
       "专业是底线，回忆是温度。线稿、徽章、队徽，还有一起改稿的那些夜晚——它们让这件衣服不只是「十周年周边」，而是「我们确实一起走过」的证据。",
-    imageKind: "remote",
-    image:
-      "https://images.unsplash.com/photo-1529156069898-499463e9bda4?auto=format&fit=crop&w=1200&q=80",
+    imageKind: "asset",
+    file: "moments.png",
     imageAlt: "队友在暖光下相聚",
     imageSide: "left",
   },
@@ -222,6 +221,8 @@ export const RESERVATION = {
     studentIdAlumniPlaceholder: "校友填本人学号；家属可填关联校友学号或留空",
     phone: "手机号",
     phonePlaceholder: "11 位手机号码",
+    email: "邮箱",
+    emailPlaceholder: "用于订单确认与联系",
     size: "衣服尺码",
     sizePlaceholder: "请选择尺码",
     frisbeeNickname: "飞盘 NickName",

@@ -9,7 +9,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart jersey-landing",
+    "pm2:logs": "pm2 logs jersey-landing"
   },
   "dependencies": {
     "framer-motion": "^11.18.2",

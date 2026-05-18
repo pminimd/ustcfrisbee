@@ -25,6 +25,7 @@ type FormState = {
   name: string;
   studentId: string;
   phone: string;
+  email: string;
   size: JerseySize | "";
   frisbeeNickname: string;
   backNumber: string;
@@ -38,6 +39,7 @@ const initialForm: FormState = {
   name: "",
   studentId: "",
   phone: "",
+  email: "",
   size: "",
   frisbeeNickname: "",
   backNumber: "",
@@ -96,6 +98,7 @@ export function ReservationForm() {
           name: values.name,
           studentId: values.studentId,
           phone: values.phone,
+          email: values.email,
           size: values.size,
           frisbeeNickname: values.frisbeeNickname,
           backNumber: values.backNumber,
@@ -237,6 +240,20 @@ export function ReservationForm() {
             />
           </label>
         </div>
+
+        <label className="block">
+          <span className="text-sm font-medium text-stone-700">{form.email}</span>
+          <input
+            type="email"
+            name="email"
+            autoComplete="email"
+            required
+            value={values.email}
+            onChange={(e) => update("email", e.target.value)}
+            placeholder={form.emailPlaceholder}
+            className={inputClass}
+          />
+        </label>
 
         <label className="block">
           <span className="text-sm font-medium text-stone-700">{form.size}</span>

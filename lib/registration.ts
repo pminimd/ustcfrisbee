@@ -30,6 +30,7 @@ export type RegistrationInput = {
   name: string;
   studentId: string;
   phone: string;
+  email: string;
   size: JerseySize;
   frisbeeNickname: string;
   backNumber: string;
@@ -44,6 +45,7 @@ export type RegistrationPayload = RegistrationInput & {
 };
 
 const PHONE_RE = /^1\d{10}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BACK_NUMBER_RE = /^[0-9]{1,3}$/;
 const CATEGORIES = new Set<string>(Object.keys(PRICING_BY_CATEGORY));
 const SIZE_SET = new Set<string>(JERSEY_SIZES);
@@ -78,6 +80,7 @@ export function parseRegistrationInput(
   const name = typeof raw.name === "string" ? raw.name.trim() : "";
   const studentId = typeof raw.studentId === "string" ? raw.studentId.trim() : "";
   const phone = typeof raw.phone === "string" ? raw.phone.trim().replace(/\s/g, "") : "";
+  const email = typeof raw.email === "string" ? raw.email.trim().toLowerCase() : "";
   const size = typeof raw.size === "string" ? raw.size.trim().toUpperCase() : "";
   let frisbeeNickname =
     typeof raw.frisbeeNickname === "string" ? raw.frisbeeNickname.trim() : "";
@@ -102,6 +105,9 @@ export function parseRegistrationInput(
   }
   if (!PHONE_RE.test(phone)) {
     return { ok: false, error: "请填写有效的 11 位手机号" };
+  }
+  if (!EMAIL_RE.test(email)) {
+    return { ok: false, error: "请填写有效的邮箱地址" };
   }
   if (!SIZE_SET.has(size)) {
     return { ok: false, error: "请选择衣服尺码" };
@@ -134,6 +140,7 @@ export function parseRegistrationInput(
       name,
       studentId,
       phone,
+      email,
       size: size as JerseySize,
       frisbeeNickname,
       backNumber,
@@ -161,6 +168,7 @@ export function toSheetRow(data: RegistrationInput, submittedAt: string) {
     name: data.name,
     studentId: data.studentId,
     phone: data.phone,
+    email: data.email,
     size: data.size,
     category: categoryLabel(data.category),
     unitPrice: meta.price,
