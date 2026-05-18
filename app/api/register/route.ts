@@ -5,15 +5,33 @@ import {
   type RegistrationPayload,
 } from "@/lib/registration";
 
-export async function POST(request: Request) {
-  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL?.trim();
+function webhookConfigured() {
+  return Boolean(process.env.GOOGLE_SHEETS_WEBHOOK_URL?.trim());
+}
 
-  if (!webhookUrl) {
+/** 用于检查服务器是否已注入 GOOGLE_SHEETS_WEBHOOK_URL（不暴露 URL） */
+export async function GET() {
+  const registerConfigured = webhookConfigured();
+  return Response.json({
+    ok: true,
+    registerConfigured,
+    ...(registerConfigured
+      ? {}
+      : {
+          hint: "在项目根目录 .env.local 设置 GOOGLE_SHEETS_WEBHOOK_URL 后执行：pm2 delete jersey-landing && pm2 start ecosystem.config.cjs",
+        }),
+  });
+}
+
+export async function POST(request: Request) {
+  if (!webhookConfigured()) {
     return Response.json(
       { ok: false, error: "GOOGLE_SHEETS_WEBHOOK_URL is not configured" },
       { status: 503 },
     );
   }
+
+  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL!.trim();
 
   let body: unknown;
   try {

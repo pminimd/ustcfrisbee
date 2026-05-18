@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "pm2:start": "pm2 start ecosystem.config.cjs",
-    "pm2:restart": "pm2 restart jersey-landing",
+    "pm2:restart": "pm2 delete jersey-landing 2>/dev/null; pm2 start ecosystem.config.cjs",
     "pm2:logs": "pm2 logs jersey-landing"
   },
   "dependencies": {

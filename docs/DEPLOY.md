@@ -56,7 +56,7 @@ curl -s "你的 GOOGLE_SHEETS_WEBHOOK_URL"
 # 期望：{"ok":true,"message":"纪念品登记 webhook 运行中"}
 ```
 
-> **PM2 说明：** `ecosystem.config.cjs` 会在启动时读取项目根目录的 `.env.local` 并注入 `GOOGLE_SHEETS_WEBHOOK_URL`。服务器上必须有该文件；修改后务必 `pm2 restart jersey-landing`。
+> **PM2 说明：** `ecosystem.config.cjs` 会从项目根目录读取 `.env.local`（及 `.env.production.local` 等）。**仅当 URL 非空时才注入进程**——若曾用空值注入，会阻止 `next start` 再次从文件加载。修改后务必 `pm2 delete jersey-landing && pm2 start ecosystem.config.cjs`（不要只 `restart`）。
 
 ---
 
@@ -94,10 +94,25 @@ pm2 -v
 
 ```bash
 cd /var/www/landpage_anniversaryclothes
+# 务必先配置好 .env.local，再启动（见第 2 节）
 pm2 start ecosystem.config.cjs
 ```
 
-等效命令（不使用配置文件时）：
+**修改 `.env.local` 后不要只用 `pm2 restart`**，否则可能仍沿用旧环境变量。应：
+
+```bash
+pm2 delete jersey-landing
+pm2 start ecosystem.config.cjs
+```
+
+部署后自检（`registerConfigured` 应为 `true`）：
+
+```bash
+curl -s http://127.0.0.1:3000/api/register
+# 期望：{"ok":true,"registerConfigured":true}
+```
+
+等效命令（不使用配置文件时，**不推荐**，需自行保证环境变量）：
 
 ```bash
 pm2 start npm --name "jersey-landing" -- start
@@ -109,7 +124,8 @@ pm2 start npm --name "jersey-landing" -- start
 |------|------|
 | 查看列表 | `pm2 list` |
 | 查看日志 | `pm2 logs jersey-landing` |
-| 重启 | `pm2 restart jersey-landing` |
+| 重启（仅代码） | `pm2 restart jersey-landing` |
+| 重启并加载新环境变量 | `pm2 delete jersey-landing && pm2 start ecosystem.config.cjs` |
 | 停止 | `pm2 stop jersey-landing` |
 | 删除进程 | `pm2 delete jersey-landing` |
 | 监控面板 | `pm2 monit` |
