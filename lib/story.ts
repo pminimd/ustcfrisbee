@@ -293,7 +293,7 @@ export const RESERVATION = {
     submitting: "提交中…",
     successTitle: "已收到你的预定",
     successBody:
-      "感谢填写。我们会按类别与印字信息核对订单，并按你选择的领取方式安排发放或邮寄。",
+      "感谢填写。请扫码加入群聊，付费后我们会按类别与印字信息核对订单，并按你选择的领取方式安排发放或邮寄。",
     successQrTitle: "欢迎加入微信群",
     successQrBody: "扫码加入协会微信群，便于接收发放通知与活动信息。",
     wechatQrFile: "WechatGroupQRcode.JPG",
