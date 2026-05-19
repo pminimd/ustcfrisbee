@@ -285,7 +285,7 @@ export const RESERVATION = {
     backNumber: "背部号码",
     backNumberPlaceholder: "例如 7、23",
     fulfillment: "领取方式",
-    pickup: "6.15 现场领取",
+    pickup: "6.13 或 6.14 现场领取",
     mail: "邮寄（我们尽量保证 6.10 前送达）",
     mailingAddress: "邮寄地址",
     mailingPlaceholder: "收件人、电话、省市区、详细地址、邮编",
