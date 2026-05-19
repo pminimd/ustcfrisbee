@@ -188,7 +188,7 @@ export const EASTER_EGG = {
   sleeveAlt: "定稿袖子细节",
   patternAlt: "纹饰线稿",
   patternFile: "outline.png",
-  sleeveFile: "xiuzi_v3.png",
+  sleeveFile: "feiduichen_xiuzi.png",
 } as const;
 
 export const RESERVATION_PRODUCTS = [
