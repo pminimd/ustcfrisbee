@@ -231,12 +231,17 @@ export const RESERVATION_PRODUCTS = [
 
 export type ReservationProductKey = (typeof RESERVATION_PRODUCTS)[number]["key"];
 
+export const FLOATING_CTA = {
+  label: "跳转至预定区",
+  targetId: "reservation",
+} as const;
+
 export const RESERVATION = {
   eyebrow: "开放预定",
   title: "登记你的纪念品预定",
-  window: "预定期：5 月 18 日 — 5 月 23 日",
+  window: "预定期：5 月 18 日 — 5 月 25 日",
   body:
-    "纪念品开放预定。我们将在 6 月 15 日活动现场发放；若无法到场，请勾选下方信息表中的邮寄选项并填写您的收件地址，我们会尽量安排在 6 月 10 日前寄出。",
+    "纪念品开放预定。我们将在 6 月 13 日和 6 月 14 日的活动现场发放；若无法到场，请勾选下方信息表中的邮寄选项并填写您的收件地址，我们会尽量安排在 6 月 10 日前寄出。",
   note: "提交后数据会同步到协会统计表格，便于核对类别、印字与邮寄。",
   pricingTitle: "折扣优惠",
   pricing: [
@@ -256,7 +261,7 @@ export const RESERVATION = {
   ] as const,
   form: {
     products: "预定可以帮助我们更好地准备纪念品，所有经费将用于提供科大学生更好的飞盘环境",
-    productsHint: "可勾选多项",
+    productsHint: "可勾选多项；注：图片与实物有微小区别，衣服实物是T肩（图片为插肩）",
     productsRequired: "请至少选择一种纪念品",
     category: "预定通道",
     categoryRequired: "请选择预定通道",

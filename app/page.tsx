@@ -4,6 +4,7 @@ import { DesignEvolution } from "@/components/diary/DesignEvolution";
 import { EasterEgg } from "@/components/diary/EasterEgg";
 import { ReservationSection } from "@/components/diary/ReservationSection";
 import { ClosingBeat } from "@/components/diary/ClosingBeat";
+import { FloatingReserveCta } from "@/components/diary/FloatingReserveCta";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ export default function Home() {
       <EasterEgg />
       <ReservationSection />
       <ClosingBeat />
+      <FloatingReserveCta />
     </main>
   );
 }
