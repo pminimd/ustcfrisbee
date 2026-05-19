@@ -196,30 +196,35 @@ export const RESERVATION_PRODUCTS = [
     key: "suits_white",
     file: "products/suits_white.png",
     label: "白金",
+    price: "¥100/件",
     note: "经典白底十周年款",
   },
   {
     key: "suits_black",
     file: "products/suits_black.png",
     label: "黑金",
+    price: "¥100/件",
     note: "深色主场气质款",
   },
   {
     key: "suits_white_xiuzi",
     file: "products/suits_white_xiuzi.png",
     label: "白金 · 非对称袖子",
+    price: "¥100/件",
     note: "左袖科大线稿彩蛋款",
   },
   {
     key: "frisbee_a",
     file: "products/frisbee_A.PNG",
     label: "纪念飞盘 A款",
+    price: "¥69/片",
     note: "十周年飞盘款式一",
   },
   {
     key: "frisbee_b",
     file: "products/frisbee_B.PNG",
     label: "纪念飞盘 B款",
+    price: "¥69/片",
     note: "十周年飞盘款式二",
   },
 ] as const;
@@ -231,7 +236,7 @@ export const RESERVATION = {
   title: "登记你的纪念品预定",
   window: "预定期：5 月 18 日 — 5 月 23 日",
   body:
-    "纪念品开放预定。我们将在 6 月 15 日活动现场发放；若无法到场，请填写下方信息表，我们会尽量安排在 6 月 10 日前寄出。",
+    "纪念品开放预定。我们将在 6 月 15 日活动现场发放；若无法到场，请勾选下方信息表中的邮寄选项并填写您的收件地址，我们会尽量安排在 6 月 10 日前寄出。",
   note: "提交后数据会同步到协会统计表格，便于核对类别、印字与邮寄。",
   pricingTitle: "折扣优惠",
   pricing: [
@@ -244,7 +249,7 @@ export const RESERVATION = {
     { key: "student_member", label: "在校学生（协会成员）", discount: "7折" },
     { key: "student_non_member", label: "在校学生（非协会成员）", discount: "8折" },
     { key: "alumni", label: "校友及家属", discount: "9折" },
-    { key: "other_friend", label: "其他朋友", discount: null },
+    { key: "other_friend", label: "其他", discount: null },
   ] as const,
   rules: [
     "科大校友、家属及在校同学可预定专属 NickName 与背部号码。",
@@ -256,7 +261,7 @@ export const RESERVATION = {
     category: "预定通道",
     categoryRequired: "请选择预定通道",
     standardJerseyTitle: "标准款印字",
-    standardJerseyBody: "00 号 +「Baby」（其他朋友专属标准款，无需填写下方 NickName 与号码）",
+    standardJerseyBody: "00 号 +「Baby」（其他专属标准款，无需填写下方 NickName 与号码）",
     name: "姓名",
     namePlaceholder: "与证件一致",
     studentId: "学号",

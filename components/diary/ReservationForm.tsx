@@ -214,18 +214,23 @@ export function ReservationForm() {
                     />
                   </div>
                   <span className="flex flex-1 flex-col gap-0.5 px-3 py-3">
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
-                          selected
-                            ? "border-amber-600 bg-amber-700 text-white"
-                            : "border-stone-300 bg-white"
-                        }`}
-                        aria-hidden
-                      >
-                        {selected ? "✓" : ""}
+                    <span className="flex items-start justify-between gap-2">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                            selected
+                              ? "border-amber-600 bg-amber-700 text-white"
+                              : "border-stone-300 bg-white"
+                          }`}
+                          aria-hidden
+                        >
+                          {selected ? "✓" : ""}
+                        </span>
+                        <span className="text-sm font-medium text-stone-800">{product.label}</span>
                       </span>
-                      <span className="text-sm font-medium text-stone-800">{product.label}</span>
+                      <span className="shrink-0 text-sm font-medium text-amber-950">
+                        {product.price}
+                      </span>
                     </span>
                     <span className="pl-6 text-xs leading-relaxed text-stone-500">
                       {product.note}

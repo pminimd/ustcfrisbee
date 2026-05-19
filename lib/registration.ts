@@ -12,7 +12,9 @@ const PRODUCT_KEYS = new Set<string>(
 );
 
 export function productLabel(key: ReservationProductKey): string {
-  return RESERVATION_PRODUCTS.find((p) => p.key === key)?.label ?? key;
+  const product = RESERVATION_PRODUCTS.find((p) => p.key === key);
+  if (!product) return key;
+  return `${product.label}（${product.price}）`;
 }
 
 export type PricingCategory =
@@ -193,7 +195,7 @@ export function categoryLabel(category: PricingCategory): string {
     student_member: "在校学生（协会成员）",
     student_non_member: "在校学生（非协会成员）",
     alumni: "校友及家属",
-    other_friend: "其他朋友",
+    other_friend: "其他",
   };
   return labels[category];
 }
