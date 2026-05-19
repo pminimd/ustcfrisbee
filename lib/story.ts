@@ -293,7 +293,11 @@ export const RESERVATION = {
     submitting: "提交中…",
     successTitle: "已收到你的预定",
     successBody:
-      "感谢填写。我们会按类别与印字信息核对订单，并按你选择的领取方式安排发放或邮寄。如有疑问请联系协会同学。",
+      "感谢填写。我们会按类别与印字信息核对订单，并按你选择的领取方式安排发放或邮寄。",
+    successQrTitle: "欢迎加入微信群",
+    successQrBody: "扫码加入协会微信群，便于接收发放通知与活动信息。",
+    wechatQrFile: "WechatGroupQRcode.JPG",
+    wechatQrAlt: "协会微信群二维码",
     submitAnother: "再填一份",
     configError: "表单服务尚未配置，请联系管理员完成 Google 表格对接。",
     networkError: "提交失败，请检查网络后重试。",

@@ -152,10 +152,29 @@ export function ReservationForm() {
         <p className="mt-3 text-pretty text-sm leading-relaxed text-stone-600 sm:text-base">
           {form.successBody}
         </p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease }}
+          className="mx-auto mt-8 max-w-xs"
+        >
+          <p className="text-sm font-medium text-stone-800">{form.successQrTitle}</p>
+          <p className="mt-1 text-xs leading-relaxed text-stone-500">{form.successQrBody}</p>
+          <div className="mt-4">
+            <WarmAssetImage
+              file={form.wechatQrFile}
+              alt={form.wechatQrAlt}
+              size="closing"
+              className="mx-auto"
+            />
+          </div>
+        </motion.div>
+
         <button
           type="button"
           onClick={reset}
-          className="mt-6 rounded-full bg-amber-50 px-5 py-2.5 text-sm font-medium text-amber-950 ring-1 ring-amber-200/80 transition hover:bg-amber-100/80"
+          className="mt-8 rounded-full bg-amber-50 px-5 py-2.5 text-sm font-medium text-amber-950 ring-1 ring-amber-200/80 transition hover:bg-amber-100/80"
         >
           {form.submitAnother}
         </button>

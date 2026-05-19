@@ -17,6 +17,7 @@ export const GENERATED_IMAGE_META: Record<
   "products/suits_black": { width: 4992, height: 3328, file: "products/suits_black.png" },
   "products/suits_white": { width: 4992, height: 3328, file: "products/suits_white.png" },
   "products/suits_white_xiuzi": { width: 4992, height: 3328, file: "products/suits_white_xiuzi.png" },
+  "WechatGroupQRcode": { width: 930, height: 1446, file: "WechatGroupQRcode.JPG" },
   "xiuzi_v1": { width: 2304, height: 1728, file: "xiuzi_v1.png" },
   "xiuzi_v2": { width: 2304, height: 1728, file: "xiuzi_v2.png" },
   "xiuzi_v3": { width: 2304, height: 1728, file: "xiuzi_v3.png" },

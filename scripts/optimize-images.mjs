@@ -15,6 +15,7 @@ const WIDTH_BY_FILE = {
   outline: 1400,
   final_version: 1600,
   加群二维码: 420,
+  WechatGroupQRcode: 420,
 };
 const DEFAULT_MAX = 1200;
 const PRODUCT_MAX = 900;
