@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RESERVATION, RESERVATION_PRODUCTS } from "@/lib/story";
+import {
+  HAT_RESERVATION_PRODUCTS,
+  LEGACY_RESERVATION_PRODUCTS,
+  RESERVATION,
+} from "@/lib/story";
 import {
   canCustomizeJersey,
   JERSEY_SIZES,
@@ -60,6 +64,8 @@ export function ReservationForm() {
   const customJersey = values.category ? canCustomizeJersey(values.category) : false;
   const studentIdRequired = categoryMeta?.studentIdRequired ?? false;
   const jerseySizeRequired = needsJerseySize(values.products);
+  const showJerseyFields = customJersey && jerseySizeRequired;
+  const showStandardJersey = values.category === "other_friend" && jerseySizeRequired;
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setValues((prev) => {
@@ -191,8 +197,45 @@ export function ReservationForm() {
         <fieldset>
           <legend className="text-sm font-medium text-stone-700">{form.products}</legend>
           <p className="mt-1 text-xs leading-relaxed text-stone-500">{form.productsHint}</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {RESERVATION_PRODUCTS.map((product) => {
+
+          <p className="mt-5 text-xs font-semibold tracking-wide text-stone-500">
+            {form.legacyProductsTitle}
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {LEGACY_RESERVATION_PRODUCTS.map((product) => (
+              <div
+                key={product.key}
+                className="flex flex-col overflow-hidden rounded-xl bg-stone-100/80 ring-1 ring-stone-200/70"
+              >
+                <div className="p-2 pb-0 opacity-90">
+                  <WarmAssetImage
+                    file={product.file}
+                    alt={product.label}
+                    size="scrapbook"
+                    className="mx-auto w-full max-w-none shadow-none ring-0"
+                  />
+                </div>
+                <span className="flex flex-1 flex-col gap-1 px-3 py-3">
+                  <span className="flex items-start justify-between gap-2">
+                    <span className="text-sm font-medium text-stone-700">{product.label}</span>
+                    <span className="shrink-0 text-xs text-stone-400 line-through">
+                      {product.price}
+                    </span>
+                  </span>
+                  <span className="text-xs leading-relaxed text-stone-500">{product.note}</span>
+                  <span className="rounded-md bg-amber-100/90 px-2 py-1 text-xs font-medium leading-snug text-amber-950 ring-1 ring-amber-200/80">
+                    {product.stoppedNote}
+                  </span>
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs font-semibold tracking-wide text-stone-500">
+            {form.hatProductsTitle}
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {HAT_RESERVATION_PRODUCTS.map((product) => {
               const selected = values.products.includes(product.key);
               return (
                 <label
@@ -214,11 +257,7 @@ export function ReservationForm() {
                         const products = has
                           ? prev.products.filter((k) => k !== product.key)
                           : [...prev.products, product.key];
-                        return {
-                          ...prev,
-                          products,
-                          size: needsJerseySize(products) ? prev.size : "",
-                        };
+                        return { ...prev, products };
                       });
                       setError(null);
                     }}
@@ -286,7 +325,7 @@ export function ReservationForm() {
                   <span className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                     <span className="text-sm leading-snug text-stone-700">{tier.label}</span>
                     <span className="text-sm font-medium text-amber-950">
-                      {tier.discount ?? "原价"}
+                      {form.channelNoDiscount}
                     </span>
                   </span>
                 </label>
@@ -391,7 +430,7 @@ export function ReservationForm() {
         </AnimatePresence>
 
         <AnimatePresence mode="wait" initial={false}>
-          {values.category && !customJersey ? (
+          {showStandardJersey ? (
             <motion.div
               key="standard"
               initial={{ opacity: 0, height: 0 }}
@@ -403,7 +442,7 @@ export function ReservationForm() {
               <p className="text-sm font-medium text-stone-800">{form.standardJerseyTitle}</p>
               <p className="mt-1 text-sm text-stone-600">{form.standardJerseyBody}</p>
             </motion.div>
-          ) : values.category && customJersey ? (
+          ) : showJerseyFields ? (
             <motion.div
               key="custom"
               initial={{ opacity: 0, height: 0 }}

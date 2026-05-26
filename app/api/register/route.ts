@@ -1,5 +1,5 @@
 import {
-  PRICING_BY_CATEGORY,
+  hatOrderDiscount,
   parseRegistrationInput,
   toSheetRow,
   type RegistrationPayload,
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   }
 
   const submittedAt = new Date().toISOString();
-  const discount = PRICING_BY_CATEGORY[parsed.data.category].discount;
+  const discount = hatOrderDiscount();
   const payload: RegistrationPayload = { ...parsed.data, submittedAt, discount };
   const sheetRow = toSheetRow(parsed.data, submittedAt);
 

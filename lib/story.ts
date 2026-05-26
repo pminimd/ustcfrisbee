@@ -191,13 +191,19 @@ export const EASTER_EGG = {
   sleeveFile: "feiduichen_xiuzi.png",
 } as const;
 
-export const RESERVATION_PRODUCTS = [
+export const STOPPED_RESERVATION_NOTE =
+  "停止预定，可在 6.13 & 6.14 现场购买" as const;
+
+/** 纪念服、飞盘：仅展示，不可勾选 */
+export const LEGACY_RESERVATION_PRODUCTS = [
   {
     key: "suits_white",
     file: "products/suits_white.png",
     label: "白金",
     price: "¥100/件",
     note: "经典白底十周年款",
+    bookable: false,
+    stoppedNote: STOPPED_RESERVATION_NOTE,
   },
   {
     key: "suits_black",
@@ -205,6 +211,8 @@ export const RESERVATION_PRODUCTS = [
     label: "黑金",
     price: "¥100/件",
     note: "深色主场气质款",
+    bookable: false,
+    stoppedNote: STOPPED_RESERVATION_NOTE,
   },
   {
     key: "suits_white_xiuzi",
@@ -212,6 +220,8 @@ export const RESERVATION_PRODUCTS = [
     label: "白金 · 非对称袖子",
     price: "¥100/件",
     note: "左袖科大线稿彩蛋款",
+    bookable: false,
+    stoppedNote: STOPPED_RESERVATION_NOTE,
   },
   {
     key: "frisbee_a",
@@ -219,6 +229,8 @@ export const RESERVATION_PRODUCTS = [
     label: "纪念飞盘 A款",
     price: "¥69/片",
     note: "十周年飞盘款式一",
+    bookable: false,
+    stoppedNote: STOPPED_RESERVATION_NOTE,
   },
   {
     key: "frisbee_b",
@@ -226,10 +238,59 @@ export const RESERVATION_PRODUCTS = [
     label: "纪念飞盘 B款",
     price: "¥69/片",
     note: "十周年飞盘款式二",
+    bookable: false,
+    stoppedNote: STOPPED_RESERVATION_NOTE,
   },
 ] as const;
 
-export type ReservationProductKey = (typeof RESERVATION_PRODUCTS)[number]["key"];
+export const HAT_UNIT_PRICE = "¥29.9/顶" as const;
+
+export const HAT_NO_DISCOUNT = "不参与打折" as const;
+
+/** 纪念帽：开放线上预定 */
+export const HAT_RESERVATION_PRODUCTS = [
+  {
+    key: "hat_black",
+    file: "products/maozi_black.PNG",
+    label: "黑色",
+    price: HAT_UNIT_PRICE,
+    note: "十周年纪念帽 · 不参与打折",
+    bookable: true,
+  },
+  {
+    key: "hat_black_gold",
+    file: "products/maozi_blackgolden.JPG",
+    label: "黑金",
+    price: HAT_UNIT_PRICE,
+    note: "十周年纪念帽 · 不参与打折",
+    bookable: true,
+  },
+  {
+    key: "hat_blue",
+    file: "products/maozi_blue.PNG",
+    label: "蓝色",
+    price: HAT_UNIT_PRICE,
+    note: "十周年纪念帽 · 不参与打折",
+    bookable: true,
+  },
+  {
+    key: "hat_red",
+    file: "products/maozi_red.PNG",
+    label: "红色",
+    price: HAT_UNIT_PRICE,
+    note: "十周年纪念帽 · 不参与打折",
+    bookable: true,
+  },
+] as const;
+
+export const RESERVATION_PRODUCT_CATALOG = [
+  ...LEGACY_RESERVATION_PRODUCTS,
+  ...HAT_RESERVATION_PRODUCTS,
+] as const;
+
+export type HatProductKey = (typeof HAT_RESERVATION_PRODUCTS)[number]["key"];
+
+export type ReservationProductKey = HatProductKey;
 
 export const FLOATING_CTA = {
   label: "跳转至预定区",
@@ -237,34 +298,34 @@ export const FLOATING_CTA = {
 } as const;
 
 export const RESERVATION = {
-  eyebrow: "开放预定",
-  title: "登记你的纪念品预定",
-  window: "预定期：5 月 18 日 — 5 月 25 日",
+  eyebrow: "帽子预定",
+  title: "登记十周年纪念帽",
+  window: "帽子线上预定开放中",
   body:
-    "纪念品开放预定。我们将在 6 月 13 日和 6 月 14 日的活动现场发放；若无法到场，请勾选下方信息表中的邮寄选项并填写您的收件地址，我们会尽量安排在 6 月 10 日前寄出。",
-  note: "提交后数据会同步到协会统计表格，便于核对类别、印字与邮寄。",
-  pricingTitle: "折扣优惠",
-  pricing: [
-    { key: "student_member", label: "在校学生（协会成员）", discount: "7折" },
-    { key: "student_non_member", label: "在校学生（非协会成员）", discount: "8折" },
-    { key: "alumni", label: "校友及家属", discount: "9折" },
-  ] as const,
-  /** 预定通道（含无折扣档位，仅用于表单） */
+    "纪念服与飞盘已停止线上预定，可于 6 月 13 日、14 日活动现场购买。纪念帽开放线上预定；若无法到场，请勾选邮寄并填写收件地址，我们会尽量在 6 月 10 日前寄出。",
+  note: "提交后请扫码加入帽子预定群，付费后我们将核对订单并按领取方式安排。",
+  pricingTitle: "帽子售价",
+  pricing: [{ key: "hat", label: "纪念帽（各色同款）", price: HAT_UNIT_PRICE }] as const,
+  /** 预定通道（仅作身份登记，纪念帽不参与折扣） */
   channels: [
-    { key: "student_member", label: "在校学生（协会成员）", discount: "7折" },
-    { key: "student_non_member", label: "在校学生（非协会成员）", discount: "8折" },
-    { key: "alumni", label: "校友及家属", discount: "9折" },
-    { key: "other_friend", label: "其他", discount: null },
+    { key: "student_member", label: "在校学生（协会成员）" },
+    { key: "student_non_member", label: "在校学生（非协会成员）" },
+    { key: "alumni", label: "校友及家属" },
+    { key: "other_friend", label: "其他" },
   ] as const,
   rules: [
-    "科大校友、家属及在校同学可预定专属 NickName 与背部号码。",
+    `纪念帽统一售价 ${HAT_UNIT_PRICE}，${HAT_NO_DISCOUNT}。`,
+    "纪念帽可勾选多项；纪念服、飞盘请至 6.13 / 6.14 现场购买。",
   ] as const,
   form: {
-    products: "预定可以帮助我们更好地准备纪念品，所有经费将用于提供科大学生更好的飞盘环境",
-    productsHint: "可勾选多项；注：图片与实物有微小区别，衣服实物是T肩（图片为插肩）",
-    productsRequired: "请至少选择一种纪念品",
-    category: "预定通道",
+    legacyProductsTitle: "纪念服与飞盘",
+    hatProductsTitle: "纪念帽（开放预定）",
+    products: "选择预定商品",
+    productsHint: "纪念帽可勾选多项；上方纪念服与飞盘仅作展示",
+    productsRequired: "请至少选择一款纪念帽",
+    category: "预定通道（身份登记）",
     categoryRequired: "请选择预定通道",
+    channelNoDiscount: HAT_NO_DISCOUNT,
     standardJerseyTitle: "标准款印字",
     standardJerseyBody: "00 号 +「Baby」（其他专属标准款，无需填写下方 NickName 与号码）",
     name: "姓名",
@@ -294,10 +355,10 @@ export const RESERVATION = {
     successTitle: "已收到你的预定",
     successBody:
       "感谢填写。请扫码加入群聊，付费后我们会按类别与印字信息核对订单，并按你选择的领取方式安排发放或邮寄。",
-    successQrTitle: "欢迎加入微信群",
-    successQrBody: "扫码加入协会微信群，便于接收发放通知与活动信息。",
-    wechatQrFile: "WechatGroupQRcode.JPG",
-    wechatQrAlt: "协会微信群二维码",
+    successQrTitle: "欢迎加入帽子预定群",
+    successQrBody: "扫码加入帽子预定微信群，便于确认付款、发放与活动通知。",
+    wechatQrFile: "WechatGroupORcodeHat.JPG",
+    wechatQrAlt: "帽子预定微信群二维码",
     submitAnother: "再填一份",
     configError: "表单服务尚未配置，请联系管理员完成 Google 表格对接。",
     networkError: "提交失败，请检查网络后重试。",

@@ -1,5 +1,7 @@
 import {
-  RESERVATION_PRODUCTS,
+  HAT_NO_DISCOUNT,
+  HAT_RESERVATION_PRODUCTS,
+  RESERVATION_PRODUCT_CATALOG,
   type ReservationProductKey,
 } from "@/lib/story";
 
@@ -7,14 +9,28 @@ export type FulfillmentMethod = "pickup" | "mail";
 
 export type { ReservationProductKey };
 
-const PRODUCT_KEYS = new Set<string>(
-  RESERVATION_PRODUCTS.map((p) => p.key),
+const BOOKABLE_PRODUCT_KEYS = new Set<string>(
+  HAT_RESERVATION_PRODUCTS.map((p) => p.key),
 );
 
+export function findReservationProduct(key: string) {
+  return RESERVATION_PRODUCT_CATALOG.find((p) => p.key === key);
+}
+
+export function isBookableProductKey(key: string): key is ReservationProductKey {
+  return BOOKABLE_PRODUCT_KEYS.has(key);
+}
+
 export function productLabel(key: ReservationProductKey): string {
-  const product = RESERVATION_PRODUCTS.find((p) => p.key === key);
+  const product = findReservationProduct(key);
   if (!product) return key;
-  return `${product.label}（${product.price}）`;
+  const price = "price" in product && product.price ? `（${product.price}）` : "";
+  return `${product.label}${price}`;
+}
+
+/** 纪念帽预定统一按原价，不使用通道折扣 */
+export function hatOrderDiscount(): string {
+  return HAT_NO_DISCOUNT;
 }
 
 export type PricingCategory =
@@ -32,14 +48,9 @@ export const JERSEY_SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"] as const;
 
 export type JerseySize = (typeof JERSEY_SIZES)[number];
 
-const JERSEY_PRODUCT_KEYS = new Set<ReservationProductKey>([
-  "suits_white",
-  "suits_black",
-  "suits_white_xiuzi",
-]);
-
-export function needsJerseySize(products: ReservationProductKey[]): boolean {
-  return products.some((p) => JERSEY_PRODUCT_KEYS.has(p));
+/** 纪念服已停止线上预定，尺码与印字字段不再展示 */
+export function needsJerseySize(_products: ReservationProductKey[]): boolean {
+  return false;
 }
 
 export const PRICING_BY_CATEGORY: Record<
@@ -121,13 +132,17 @@ export function parseRegistrationInput(
   const products: ReservationProductKey[] = [];
   if (Array.isArray(productsRaw)) {
     for (const item of productsRaw) {
-      if (typeof item === "string" && PRODUCT_KEYS.has(item) && !products.includes(item as ReservationProductKey)) {
-        products.push(item as ReservationProductKey);
+      if (
+        typeof item === "string" &&
+        isBookableProductKey(item) &&
+        !products.includes(item)
+      ) {
+        products.push(item);
       }
     }
   }
   if (products.length === 0) {
-    return { ok: false, error: "请至少选择一种纪念品" };
+    return { ok: false, error: "请至少选择一款纪念帽" };
   }
 
   if (typeof category !== "string" || !CATEGORIES.has(category)) {
@@ -152,11 +167,16 @@ export function parseRegistrationInput(
     return { ok: false, error: "请选择衣服尺码" };
   }
 
-  const jersey = resolveJerseyFields(cat, frisbeeNickname, backNumber);
-  frisbeeNickname = jersey.frisbeeNickname;
-  backNumber = jersey.backNumber;
+  if (needsJerseySize(products)) {
+    const jersey = resolveJerseyFields(cat, frisbeeNickname, backNumber);
+    frisbeeNickname = jersey.frisbeeNickname;
+    backNumber = jersey.backNumber;
+  } else {
+    frisbeeNickname = "";
+    backNumber = "";
+  }
 
-  if (meta.customJersey) {
+  if (meta.customJersey && needsJerseySize(products)) {
     if (!frisbeeNickname) {
       return { ok: false, error: "请填写飞盘 NickName" };
     }
@@ -201,7 +221,6 @@ export function categoryLabel(category: PricingCategory): string {
 }
 
 export function toSheetRow(data: RegistrationInput, submittedAt: string) {
-  const meta = PRICING_BY_CATEGORY[data.category];
   return {
     submittedAt,
     products: data.products.map(productLabel).join("、"),
@@ -211,7 +230,7 @@ export function toSheetRow(data: RegistrationInput, submittedAt: string) {
     email: data.email,
     size: data.size,
     category: categoryLabel(data.category),
-    discount: meta.discount ?? "",
+    discount: hatOrderDiscount(),
     frisbeeNickname: data.frisbeeNickname,
     backNumber: data.backNumber,
     fulfillment: data.fulfillment === "pickup" ? "现场领取" : "邮寄",

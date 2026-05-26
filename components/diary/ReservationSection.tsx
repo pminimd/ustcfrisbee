@@ -33,7 +33,7 @@ export function ReservationSection() {
                 className="flex items-baseline justify-between gap-4 text-sm text-stone-700"
               >
                 <span>{tier.label}</span>
-                <span className="shrink-0 font-medium text-amber-950">{tier.discount}</span>
+                <span className="shrink-0 font-medium text-amber-950">{tier.price}</span>
               </li>
             ))}
           </ul>
